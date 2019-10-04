@@ -26,8 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-	#include <string.h>
-	#include <stdio.h>
+	#include "keyb_4x4_ttp229_sm.h"
 
 /* USER CODE END Includes */
 
@@ -50,15 +49,11 @@
 
 /* USER CODE BEGIN PV */
 
-	volatile uint8_t start_RX = 0;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
-void ttp_delay(uint32_t t);
 
 /* USER CODE END PFP */
 
@@ -99,13 +94,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-	char DataChar[100];
-	sprintf(DataChar,"\r\nKeyBoard 4x4 over TTP229 v1.0.0\r\nUART1 for debug started on speed 115200\r\n");
-	HAL_UART_Transmit(&huart1, (uint8_t *)DataChar, strlen(DataChar), 100);
-	HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
-
-	GPIO_PinState btn_state;
-	uint8_t key;
+	TTP229_start(&huart1);
 
   /* USER CODE END 2 */
 
@@ -113,29 +102,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (start_RX == 1)
-	  {
-		  ttp_delay(100);
-		  for (int i = 0; i<16; i++)
-		  {
-			  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_RESET);
-			  ttp_delay(5);
-			  btn_state = HAL_GPIO_ReadPin(SDA_GPIO_Port,SDA_Pin);
+	if (Get_button_pressed_status() == 1)
+	{
+		uint8_t key = TTP229_scan_keyboard();
 
-			  if (btn_state == 0)
-			  {
-				  key = i + 1;
-			  }
-			  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
-			  ttp_delay(5);
-		  }
+		if ( key > 0 )
+		{
+			char DataChar[10];
 			sprintf(DataChar,"%d \r\n", key);
 			HAL_UART_Transmit(&huart1, (uint8_t *)DataChar, strlen(DataChar), 100);
-			HAL_Delay(100);
-		  start_RX = 0;
-	  }
+		}
 
-
+		Set_button_pressed_status(0);
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -181,13 +160,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void ttp_delay(uint32_t t)
-{
-	for (; t; t--)
-	{
-		__asm("nop");
-	}
-}
+
 /* USER CODE END 4 */
 
 /**

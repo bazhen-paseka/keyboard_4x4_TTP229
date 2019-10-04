@@ -1,0 +1,3 @@
+[submodule "Drivers/keyb_4x4_TTP229_sm"]
+	path = Drivers/keyb_4x4_TTP229_sm
+	url = https://github.com/bazhen-paseka/keyb_4x4_TTP229_sm.git

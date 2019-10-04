@@ -23,6 +23,9 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+	#include "keyb_4x4_ttp229_sm.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,8 +61,6 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
-
-	extern uint8_t start_RX;
 
 /* USER CODE END EV */
 
@@ -206,7 +207,7 @@ void EXTI1_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI1_IRQn 0 */
 
-	start_RX = 1;
+	Set_button_pressed_status(1);
 
   /* USER CODE END EXTI1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);

@@ -50,7 +50,7 @@
 
 /* USER CODE BEGIN PV */
 
-	volatile uint8_t ttp_data = 0;
+	volatile uint8_t start_RX = 0;
 
 /* USER CODE END PV */
 
@@ -102,7 +102,6 @@ int main(void)
 	sprintf(DataChar,"\r\nKeyBoard 4x4 over TTP229 v0.1.0\r\nUART1 for debug started on speed 115200\r\n");
 	HAL_UART_Transmit(&huart1, (uint8_t *)DataChar, strlen(DataChar), 100);
 
-	uint8_t data[17];
 	GPIO_PinState btn_state;
 	uint8_t key;
 
@@ -117,27 +116,26 @@ int main(void)
 
 	  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
 
-	  if (ttp_data == 1)
+	  if (start_RX == 1)
 	  {
-		  memset(data, 0, 17);
 		  ttp_delay(100);
 		  for (int i = 0; i<16; i++)
 		  {
 			  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_RESET);
-			  ttp_delay(100);
+			  ttp_delay(5);
 			  btn_state = HAL_GPIO_ReadPin(SDA_GPIO_Port,SDA_Pin);
-			  data[i] = 0x30 + btn_state;
+
 			  if (btn_state == 0)
 			  {
-				  key = i + 1 - 8;
+				  key = i + 1;
 			  }
 			  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
-			  ttp_delay(100);
+			  ttp_delay(5);
 		  }
-			sprintf(DataChar,"%d) %s\r\n", key, data);
+			sprintf(DataChar,"%d \r\n", key);
 			HAL_UART_Transmit(&huart1, (uint8_t *)DataChar, strlen(DataChar), 100);
 			HAL_Delay(100);
-		  ttp_data = 0;
+		  start_RX = 0;
 	  }
 
 
@@ -161,7 +159,11 @@ void SystemClock_Config(void)
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -170,12 +172,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }

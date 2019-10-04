@@ -59,7 +59,7 @@
 
 /* USER CODE BEGIN EV */
 
-	extern uint8_t ttp_data;
+	extern uint8_t start_RX;
 
 /* USER CODE END EV */
 
@@ -206,7 +206,7 @@ void EXTI1_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI1_IRQn 0 */
 
-	ttp_data = 1;
+	start_RX = 1;
 
   /* USER CODE END EXTI1_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);

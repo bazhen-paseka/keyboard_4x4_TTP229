@@ -98,9 +98,11 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
 	char DataChar[100];
-	sprintf(DataChar,"\r\nKeyBoard 4x4 over TTP229 v0.1.0\r\nUART1 for debug started on speed 115200\r\n");
+	sprintf(DataChar,"\r\nKeyBoard 4x4 over TTP229 v1.0.0\r\nUART1 for debug started on speed 115200\r\n");
 	HAL_UART_Transmit(&huart1, (uint8_t *)DataChar, strlen(DataChar), 100);
+	HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
 
 	GPIO_PinState btn_state;
 	uint8_t key;
@@ -111,11 +113,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-//	  HAL_Delay(100);
-
-	  HAL_GPIO_WritePin(SLC_GPIO_Port, SLC_Pin, GPIO_PIN_SET);
-
 	  if (start_RX == 1)
 	  {
 		  ttp_delay(100);
